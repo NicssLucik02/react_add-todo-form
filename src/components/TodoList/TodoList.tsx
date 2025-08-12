@@ -1,6 +1,6 @@
-import { TodoInfo } from "../TodoInfo";
+import { TodoInfo } from '../TodoInfo';
 
-  interface User {
+interface User {
   id: number;
   name: string;
   username: string;
@@ -18,18 +18,16 @@ interface TodoListProps {
   todos: Todo[];
 }
 
-export const TodoList:React.FC<TodoListProps> = ( { todos }) => {
+export const TodoList: React.FC<TodoListProps> = ({ todos }) => {
   if (!todos || todos.length === 0) {
-  return null;
-}
+    return null;
+  }
 
   return (
-     <section className="TodoList">
-      {todos.map((todo:Todo) => {
-        return (
-         <TodoInfo key={todo.id} todo={todo}/>
-        )
+    <section className="TodoList">
+      {todos.map((todo: Todo) => {
+        return <TodoInfo key={todo.id} todo={todo} />;
       })}
-      </section>
-  )
+    </section>
+  );
 };

@@ -1,5 +1,5 @@
-import { UserInfo } from "../UserInfo";
- interface User {
+import { UserInfo } from '../UserInfo';
+interface User {
   id: number;
   name: string;
   username: string;
@@ -14,20 +14,19 @@ interface Todo {
 }
 
 interface Props {
-  todo:Todo
+  todo: Todo;
 }
 
-export const TodoInfo:React.FC<Props>=({ todo }) => {
+export const TodoInfo: React.FC<Props> = ({ todo }) => {
+  return (
+    <article
+      data-id={todo.id}
+      className={todo.completed ? 'TodoInfo TodoInfo--completed' : 'TodoInfo'}
+      key={todo.id}
+    >
+      <h2 className="TodoInfo__title">{todo.title}</h2>
 
-    return (
-     <article
-            data-id={todo.id}
-            className={todo.completed ? "TodoInfo TodoInfo--completed" : "TodoInfo"}
-            key={todo.id}
-          >
-          <h2 className="TodoInfo__title">{todo.title}</h2>
-
-           <UserInfo user={todo.user}/>
-        </article>
-  )
+      <UserInfo user={todo.user} />
+    </article>
+  );
 };
