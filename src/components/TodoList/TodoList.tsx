@@ -11,7 +11,8 @@ interface Todo {
   id: number;
   title: string;
   completed: boolean;
-  user: User;
+  user?: User;
+  userId: number;
 }
 
 interface TodoListProps {

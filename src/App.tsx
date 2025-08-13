@@ -7,11 +7,11 @@ import { TodoList } from './components/TodoList';
 
 const listOfTodo = () => {
   return todosFromServer.map(todo => {
-    const newUser = usersFromServer.find(user => todo.userId === user.id);
+    const user = usersFromServer.find(item => todo.userId === item.id);
 
     return {
       ...todo,
-      newUser,
+      user,
     };
   });
 };
@@ -19,8 +19,9 @@ const listOfTodo = () => {
 export const App = () => {
   const [historyChange, setHistoryChange] = useState([...listOfTodo()]);
   const [inputTitle, setInputTitle] = useState('');
-  const [selectUser, setSelectUser] = useState('');
-  const [status, setStatus] = useState(false);
+  const [selectUser, setSelectUser] = useState<number | ''>('');
+  const [titleError, setTitleError] = useState(false);
+  const [userError, setUserError] = useState(false);
 
   const maxId =
     historyChange.length > 0
@@ -40,18 +41,29 @@ export const App = () => {
 
   const handleTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputTitle(event.target.value);
+    setTitleError(false);
   };
 
-  const handleSelectUser = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectUser(event.target.value);
+  const handleSelectUser = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = event.target.value === '' ? '' : Number(event.target.value);
+
+    setSelectUser(value);
+    setUserError(false);
   };
 
-  const findUser = usersFromServer.find(user => user.name === selectUser);
+  const findUser =
+    typeof selectUser === 'number'
+      ? usersFromServer.find(user => user.id === selectUser)
+      : undefined;
 
   const addTodo = () => {
-    setStatus(true);
+    const isTitleEmpty = inputTitle.trim() === '';
+    const isUserEmpty = selectUser === '';
 
-    if (inputTitle.trim() === '' || selectUser.trim() === '') {
+    setTitleError(isTitleEmpty);
+    setUserError(isUserEmpty);
+
+    if (isTitleEmpty || isUserEmpty) {
       return;
     }
 
@@ -63,11 +75,11 @@ export const App = () => {
 
     const newTodo = {
       id: newId,
-      title: inputTitle,
+      title: inputTitle.trim(),
       completed: false,
       user: {
         id: findUser.id,
-        name: selectUser,
+        name: findUser.name,
         username: findUser.username,
         email: findUser.email,
       },
@@ -78,17 +90,18 @@ export const App = () => {
 
     setInputTitle('');
     setSelectUser('');
-    setStatus(true);
   };
-
-  const hasTitleError = inputTitle.trim() === '' && status;
-  const hasUserError = selectUser.trim() === '' && status;
 
   return (
     <div className="App">
       <h1>Add todo form</h1>
 
-      <form action="/api/todos" method="POST">
+      <form
+        onSubmit={e => {
+          e.preventDefault();
+          addTodo();
+        }}
+      >
         <div className="field">
           <input
             type="text"
@@ -96,10 +109,9 @@ export const App = () => {
             value={inputTitle}
             onChange={handleTitle}
             placeholder="Enter title"
-            required
           />
 
-          {hasTitleError && <span className="error">Please enter a title</span>}
+          {titleError && <span className="error">Please enter a title</span>}
         </div>
 
         <div className="field">
@@ -108,30 +120,21 @@ export const App = () => {
             value={selectUser}
             onChange={handleSelectUser}
           >
-            <option value="" disabled={selectUser !== ''}>
-              Choose a user
-            </option>
+            <option value="">Choose a user</option>
 
             {uniqueUsers.map(item => {
               return (
-                <option value={item.name} key={item.id}>
+                <option value={item.id} key={item.id}>
                   {item.name}
                 </option>
               );
             })}
           </select>
 
-          {hasUserError && <span className="error">Please choose a user</span>}
+          {userError && <span className="error">Please choose a user</span>}
         </div>
 
-        <button
-          type="submit"
-          data-cy="submitButton"
-          onClick={e => {
-            e.preventDefault();
-            addTodo();
-          }}
-        >
+        <button type="submit" data-cy="submitButton">
           Add
         </button>
       </form>
